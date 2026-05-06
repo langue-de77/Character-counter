@@ -1,0 +1,25 @@
+html, body {
+    height: 100vh;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+main {
+    margin: auto;
+    padding: 10px 0;
+    text-align: center;
+    position: relative;
+    background-color: #90c29d;
+}
+
+.container {
+    background-color: white;
+    width: 80vw;
+    margin: 0 10px 10px;
+    padding: 10px;
+}
+
+textarea {
+    resize: none;
+}
