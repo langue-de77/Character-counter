@@ -8,12 +8,22 @@
     <link rel="icon" href="./img/favicon.ico" sizes="any">
 </head>
 <body>
+    <div id="pillars">
+		<div class="pillar left"></div>
+		<div class="pillar right"></div>
+	</div>
     <main class="centered">
         <section class="container">
-            <textarea id="input" placeholder="Text" autofocus="on" cols="100" rows="15"></textarea>
+            <h1>文字数カウント</h1>
+        </section>
+        <section class="container">
+            <textarea id="input" placeholder="カウントする文字列" autofocus="on" cols="50" rows="15"></textarea>
+            <textarea id="specific" placeholder="いくつ含まれてるか知りたい文字列" cols="20" rows="2"></textarea>
         </section>
         <section class="container">
             <div id="counter">文字数: 0</div>
+            <div id="exCounter">改行除く: 0</div>
+            <div id="specificCounter">特定の文字列の数: 0</div>
         </section>
         <p>&copy; 2026 blackbear</p>
     </main>
