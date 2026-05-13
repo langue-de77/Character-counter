@@ -20,7 +20,7 @@
             <textarea id="input" placeholder="カウントする文字列" autofocus="on" cols="50" rows="15"></textarea>
             <textarea id="specific" placeholder="いくつ含まれてるか知りたい文字列" cols="20" rows="2"></textarea>
         </section>
-        <section class="container">
+        <section id="results_container">
             <div class="results">
                 <ul class="results-row">
                     <li class="results-cell label">文字数</li>
@@ -33,6 +33,10 @@
                 <ul class="results-row">
                     <li class="results-cell label">特定の文字列の数</li>
                     <li class="results-cell value" id="specificCounter">0</li>
+                </ul>
+                <ul class="results-row">
+                    <li class="results-cell label">四則演算</li>
+                    <li class="results-cell value" id="calculationResult">0</li>
                 </ul>
             </div>
         </section>
