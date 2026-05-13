@@ -1,7 +1,8 @@
 const input = document.getElementById("input");
 const specificInput = document.getElementById("specific");
 const counter = document.getElementById("counter");
-const exCounter = document.getElementById("exCounter");
+const ex0Counter = document.getElementById("ex0Counter");
+const ex1Counter = document.getElementById("ex1Counter");
 const specificCounter = document.getElementById("specificCounter");
 const calculationResult = document.getElementById("calculationResult");
 
@@ -14,15 +15,16 @@ specificInput.addEventListener('input', () => {
 function updateCounter(text) {
     const length = text.length;
     const excludedLFLength = countExcludedLF(text);
+    const excludedLFAndSpaceLength = countExcludedLFAndSpace(text);
     updateSpecificCounter(input.value, specificInput.value);
     counter.textContent = `${length}`;
-    exCounter.textContent = `${excludedLFLength}`;
-    const calculation = evaluate_expression(text);
-    if (calculation !== null) {
+    ex0Counter.textContent = `${excludedLFLength}`;
+    ex1Counter.textContent = `${excludedLFAndSpaceLength}`;
+    const calculation = evaluateExpression(text);
+    if (calculation !== null)
         calculationResult.textContent = `${calculation}`;
-    } else {
+    else
         calculationResult.textContent = 'N/A';
-    }
 }
 function updateSpecificCounter(text, specificText) {
     var count = 0;
@@ -33,11 +35,14 @@ function updateSpecificCounter(text, specificText) {
 function countExcludedLF(text) {
     return text.split('\n').join('').length;
 }
+function countExcludedLFAndSpace(text) {
+    return text.split('\n').join('').split(' ').join('').length;
+}
 function countSpecificText(text, specificText) {
     return text.split(specificText).length - 1;
 }
-function evaluate_expression(text) {
-    function is_valid(text) {
+function evaluateExpression(text) {
+    function isValid(text) {
         // 許可されている文字s
         whitelist = new Set('0123456789+-*/(). ');
         
@@ -111,7 +116,7 @@ function evaluate_expression(text) {
 
         return true;
     }
-    function insert_implicit_multiplication_operators(text) {
+    function insertImplicitMultiplicationOperators(text) {
         let i = 1;
         while (i < text.length) {
             if (text[i] === '(') {
@@ -123,7 +128,7 @@ function evaluate_expression(text) {
         }
         return text;
     }
-    function parenthesize_multiplication_division(text) {
+    function parenthesizeMultiplicationDivision(text) {
         let i = text.length - 1;
         while (i >= 0) {
             if (text[i] === '*' || text[i] === '/') {
@@ -167,7 +172,7 @@ function evaluate_expression(text) {
         }
         return text
     }
-    function parenthesize_addition_subtraction(text) {
+    function parenthesizeAdditionSubtraction(text) {
         let i = text.length - 1
         while (i >= 0) {
             if (['+', '-'].includes(text[i])) {
@@ -194,7 +199,7 @@ function evaluate_expression(text) {
         }
         return text 
     }
-    function parse_infix_expression(text) {
+    function parseInfixExpression(text) {
         let result = []
         while (text && text[0] === '(') {
             let count = 0
@@ -222,7 +227,7 @@ function evaluate_expression(text) {
             } else if (text[i] === ')') {
                 count -= 1
             } else if (['+', '-', '*', '/'].includes(text[i]) && count === 0) {
-                result = [parse_infix_expression(text.substring(0, i)), parse_infix_expression(text.substring(i + 1)), text[i]]
+                result = [parseInfixExpression(text.substring(0, i)), parseInfixExpression(text.substring(i + 1)), text[i]]
             }
         }
         if (result.length === 0) {
@@ -230,12 +235,12 @@ function evaluate_expression(text) {
         }
         return result
     }
-    function evaluate_postfix_tree(formula) {
+    function evaluatePostfixTree(formula) {
         if (typeof formula === 'number') {
             return formula
         }
-        let left = evaluate_postfix_tree(formula[0])
-        let right = evaluate_postfix_tree(formula[1])
+        let left = evaluatePostfixTree(formula[0])
+        let right = evaluatePostfixTree(formula[1])
         if (formula[2] === '+') {
             return left + right
         } else if (formula[2] === '-') {
@@ -247,12 +252,12 @@ function evaluate_expression(text) {
         }
     }
 
-    if (is_valid(text)) {
-        text = insert_implicit_multiplication_operators(text)
-        text = parenthesize_multiplication_division(text)
-        text = parenthesize_addition_subtraction(text)
-        const postfix = parse_infix_expression(text)
-        return evaluate_postfix_tree(postfix)
+    if (isValid(text)) {
+        text = insertImplicitMultiplicationOperators(text)
+        text = parenthesizeMultiplicationDivision(text)
+        text = parenthesizeAdditionSubtraction(text)
+        const postfix = parseInfixExpression(text)
+        return evaluatePostfixTree(postfix)
     } else
         return null
 }
