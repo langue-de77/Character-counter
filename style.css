@@ -37,6 +37,40 @@ html, body{
     flex-direction: column;
 }
 
+#results_container{
+    border: 1px solid black;
+    background-color: white;
+    margin: 0px 10px 10px;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.results {
+    width: 50%;
+    border-collapse: collapse;
+    margin: 10px;
+}
+.results-row {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+.results-row .results-cell {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid black;
+    text-align: center;
+}
+.results-row .results-cell.label {
+    text-align: right;
+}
+.results-row .results-cell.value {
+    text-align: left;
+}
+
 textarea{
     resize: none;
 }
