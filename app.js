@@ -20,7 +20,7 @@ function updateCounter(text) {
     counter.textContent = `${length}`;
     ex0Counter.textContent = `${excludedLFLength}`;
     ex1Counter.textContent = `${excludedLFAndSpaceLength}`;
-    const calculation = evaluateExpression(text);
+    const calculation = evaluateExpression(text.replace(/[^0-9+\-*/.()]/g, ''));
     if (calculation !== null)
         calculationResult.textContent = `${calculation}`;
     else
@@ -129,8 +129,8 @@ function evaluateExpression(text) {
         return text;
     }
     function parenthesizeMultiplicationDivision(text) {
-        let i = text.length - 1;
-        while (i >= 0) {
+        let i = 0;
+        while (i < text.length) {
             if (text[i] === '*' || text[i] === '/') {
                 let left_index = i - 1;
                 if (text[left_index] === ')') {
@@ -144,7 +144,7 @@ function evaluateExpression(text) {
                         left_index--;
                     }
                 }else{
-                    while (left_index >= 0 && !['+', '-'].includes(text[left_index]))
+                    while (left_index >= 0 && !['+', '-', '*', '/'].includes(text[left_index]))
                         left_index--;
                 }
                 text = text.substring(0, left_index + 1) + '(' + text.substring(left_index + 1);
@@ -163,12 +163,12 @@ function evaluateExpression(text) {
                         right_index++;
                     };
                 } else {
-                    while (right_index < text.length && !['+', '-'].includes(text[right_index]))
+                    while (right_index < text.length && !['+', '-', '*', '/'].includes(text[right_index]))
                         right_index++;
                 }
                 text = text.substring(0, right_index) + ')' + text.substring(right_index)
             }
-            i--;
+            i++;
         }
         return text
     }
