@@ -4,7 +4,6 @@ const counter = document.getElementById("counter");
 const ex0Counter = document.getElementById("ex0Counter");
 const ex1Counter = document.getElementById("ex1Counter");
 const specificCounter = document.getElementById("specificCounter");
-const calculationResult = document.getElementById("calculationResult");
 
 input.addEventListener('input', () => {
     updateCounter(input.value);
