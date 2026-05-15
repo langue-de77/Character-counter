@@ -4,14 +4,67 @@ const counter = document.getElementById("counter");
 const ex0Counter = document.getElementById("ex0Counter");
 const ex1Counter = document.getElementById("ex1Counter");
 const specificCounter = document.getElementById("specificCounter");
+const calculationResult = document.getElementById("calculationResult");
+const menuButton = document.getElementById("menuButton");
+const filterMenu = document.getElementById("filterMenu");
+const filterCheckboxes = document.querySelectorAll("[data-filter]");
+const resultRows = document.querySelectorAll(".result-card[data-result]");
 
-input.addEventListener('input', () => {
+function applyResultFilters(){
+    const visibleResults = new Set(
+        Array.from(filterCheckboxes)
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.dataset.filter)
+    );
+
+    resultRows.forEach((row) =>{
+        row.classList.toggle("is-hidden", !visibleResults.has(row.dataset.result));
+    });
+}
+
+function toggleFilterMenu(forceOpen){
+    const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : !filterMenu.classList.contains("is-open");
+    filterMenu.classList.toggle("is-open", shouldOpen);
+    menuButton.setAttribute("aria-expanded", String(shouldOpen));
+    menuButton.setAttribute("aria-label", shouldOpen ? "結果フィルタを閉じる" : "結果フィルタを開く");
+}
+
+if (menuButton && filterMenu){
+    menuButton.addEventListener("click", () =>{
+        toggleFilterMenu();
+    });
+}
+
+filterCheckboxes.forEach((checkbox) =>{
+    checkbox.addEventListener("change", applyResultFilters);
+});
+
+document.addEventListener("click", (event) =>{
+    if (!filterMenu.classList.contains("is-open")){
+        return;
+    }
+    if (filterMenu.contains(event.target) || menuButton.contains(event.target)){
+        return;
+    }
+    toggleFilterMenu(false);
+});
+
+// close menu on Escape
+document.addEventListener("keydown", (e) =>{
+    if (e.key === "Escape" && filterMenu && filterMenu.classList.contains("is-open")){
+        toggleFilterMenu(false);
+    }
+});
+
+applyResultFilters();
+
+input.addEventListener('input', () =>{
     updateCounter(input.value);
 });
-specificInput.addEventListener('input', () => {
+specificInput.addEventListener('input', () =>{
     updateSpecificCounter(input.value, specificInput.value);
 });
-function updateCounter(text) {
+function updateCounter(text){
     const length = text.length;
     const excludedLFLength = countExcludedLF(text);
     const excludedLFAndSpaceLength = countExcludedLFAndSpace(text);
@@ -20,44 +73,41 @@ function updateCounter(text) {
     ex0Counter.textContent = `${excludedLFLength}`;
     ex1Counter.textContent = `${excludedLFAndSpaceLength}`;
     const calculation = evaluateExpression(text.replace(/[^0-9+\-*/.()]/g, ''));
-    if (calculation !== null)
-        calculationResult.textContent = `${calculation}`;
-    else
-        calculationResult.textContent = 'N/A';
+    calculationResult.textContent = calculation !== null ? calculation : 'N/A';
 }
-function updateSpecificCounter(text, specificText) {
-    var count = 0;
+function updateSpecificCounter(text, specificText){
+    let count = 0;
     if (specificText.length > 0)
         count = countSpecificText(text, specificText);
     specificCounter.textContent = `${count}`;
 }
-function countExcludedLF(text) {
-    return text.split('\n').join('').length;
+function countExcludedLF(text){
+    return text.replace(/\n/g, '').length;
 }
-function countExcludedLFAndSpace(text) {
-    return text.split('\n').join('').split(' ').join('').length;
+function countExcludedLFAndSpace(text){
+    return text.replace(/\s/g, '').length;
 }
-function countSpecificText(text, specificText) {
+function countSpecificText(text, specificText){
     return text.split(specificText).length - 1;
 }
-function evaluateExpression(text) {
-    function isValid(text) {
+function evaluateExpression(text){
+    function isValid(text){
         // 許可されている文字s
-        whitelist = new Set('0123456789+-*/(). ');
+        const whitelist = new Set('0123456789+-*/(). ');
         
         // 許可されていない文字が含まれていれば棄却
         if (!text.split('').every(char => whitelist.has(char)))
             return false;
         
         // 空白削除
-        text = text.replace(' ', '');
+        text = text.replace(/\s/g, '');
         
         // 空文字列の棄却
         if (!text)
             return false;
         
         // 各文字の前に可能性のある文字sの定義
-        allowed_before = {
+        const allowed_before ={
             '0': new Set('0123456789(+-*/.'),
             '1': new Set('0123456789(+-*/.'),
             '2': new Set('0123456789(+-*/.'),
@@ -78,30 +128,30 @@ function evaluateExpression(text) {
         }
         
         // 最初の文字として可能性のある文字sの定義
-        if (!text[0] || !new Set('0123456789(').has(text[0]))
+        if (!'0123456789('.includes(text[0]))
             return false;
         
         // 最後の文字として可能性のある文字sの定義
-        if (!text[text.length - 1] || !new Set('0123456789.)').has(text[text.length - 1]))
+        if (!'0123456789)'.includes(text[text.length - 1]))
             return false;
         
         // 全ての文字の前が可能性のある文字sか
-        for (let i = 1; i < text.length; i++) {
+        for (let i = 1; i < text.length; i++){
             const current_char = text[i];
             const previous_char = text[i - 1];
 
             // 現在の文字が許可される文字か、前の文字が許可されているか
-            if (!allowed_before[current_char]) {
+            if (!allowed_before[current_char]){
                 return false;
             }
-            if (!allowed_before[current_char].has(previous_char)) {
+            if (!allowed_before[current_char].has(previous_char)){
                 return false;
             }
         }
 
         // 括弧のバランスチェック
         let paren_count = 0
-        for (let i = 0; i < text.length; i++) {
+        for (let i = 0; i < text.length; i++){
             const char = text[i];
             if (char === '(')
                 paren_count++;
@@ -115,11 +165,11 @@ function evaluateExpression(text) {
 
         return true;
     }
-    function insertImplicitMultiplicationOperators(text) {
+    function insertImplicitMultiplicationOperators(text){
         let i = 1;
-        while (i < text.length) {
-            if (text[i] === '(') {
-                if (text[i - 1].match(/\d/) || text[i - 1] === ')')
+        while (i < text.length){
+            if (text[i] === '('){
+                if ('0123456789'.includes(text[i - 1]) || text[i - 1] === ')')
                     text = text.substring(0, i) + '*' + text.substring(i);
                 i++;
             }
@@ -127,15 +177,15 @@ function evaluateExpression(text) {
         }
         return text;
     }
-    function parenthesizeMultiplicationDivision(text) {
+    function parenthesizeMultiplicationDivision(text){
         let i = 0;
-        while (i < text.length) {
-            if (text[i] === '*' || text[i] === '/') {
+        while (i < text.length){
+            if (text[i] === '*' || text[i] === '/'){
                 let left_index = i - 1;
-                if (text[left_index] === ')') {
+                if (text[left_index] === ')'){
                     left_index--;
                     let count = 1
-                    while (count > 0) {
+                    while (count > 0){
                         if (text[left_index] === ')')
                             count++;
                         else if (text[left_index] === '(')
@@ -149,19 +199,19 @@ function evaluateExpression(text) {
                 text = text.substring(0, left_index + 1) + '(' + text.substring(left_index + 1);
                 i++;
 
-                right_index = i + 1
-                if (text[right_index] === '(') {
+                let right_index = i + 1
+                if (text[right_index] === '('){
                     right_index++;
                     let count = 1
-                    while (count > 0) {
-                        if (text[right_index] === '(') {
+                    while (count > 0){
+                        if (text[right_index] === '('){
                             count++;
-                        } else if (text[right_index] === ')') {
+                        } else if (text[right_index] === ')'){
                             count--;
                         };
                         right_index++;
                     };
-                } else {
+                } else{
                     while (right_index < text.length && !['+', '-', '*', '/'].includes(text[right_index]))
                         right_index++;
                 }
@@ -171,45 +221,45 @@ function evaluateExpression(text) {
         }
         return text
     }
-    function parenthesizeAdditionSubtraction(text) {
-        let i = text.length - 1
-        while (i >= 0) {
-            if (['+', '-'].includes(text[i])) {
-                let right_index = i + 1
-                if (text[right_index] === '(') {
-                    right_index += 1
-                    count = 1
-                    while (right_index < text.length && count > -1) {
-                        if (text[right_index] === '(') {
-                            count += 1
-                        } else if (text[right_index] === ')') {
-                            count -= 1
+    function parenthesizeAdditionSubtraction(text){
+        let i = 0;
+        while (i < text.length){
+            if (['+', '-'].includes(text[i])){
+                let right_index = i + 1;
+                if (text[right_index] === '('){
+                    right_index += 1;
+                    let count = 1;
+                    while (right_index < text.length && count > -1){
+                        if (text[right_index] === '('){
+                            count += 1;
+                        } else if (text[right_index] === ')'){
+                            count -= 1;
                         }
-                        right_index += 1
+                        right_index += 1;
                     }
-                } else {
-                    while (right_index < text.length && text[right_index] !== ')') {
-                        right_index += 1
+                } else{
+                    while (right_index < text.length && text[right_index] !== ')'){
+                        right_index += 1;
                     }
                 }
                 text = text.substring(0, i+1) + '(' + text.substring(i+1, right_index) + ')' + text.substring(right_index)
             }
-            i -= 1
+            i += 1
         }
         return text 
     }
-    function parseInfixExpression(text) {
+    function parseInfixExpression(text){
         let result = []
-        while (text && text[0] === '(') {
+        while (text && text[0] === '('){
             let count = 0
             let removed = false
-            for (let i = 0; i < text.length; i++) {
+            for (let i = 0; i < text.length; i++){
                 if (text[i] === '(')
                     count += 1
                 else if (text[i] === ')')
                     count -= 1
-                if (count === 0) {
-                    if (i === text.length - 1) {
+                if (count === 0){
+                    if (i === text.length - 1){
                         text = text.substring(1, text.length - 1)
                         removed = true
                     }
@@ -219,39 +269,41 @@ function evaluateExpression(text) {
             if (!removed)
                 break
         }
-        count = 0
-        for (let i = 0; i < text.length; i++) {
-            if (text[i] === '(') {
+        let count = 0
+        for (let i = text.length - 1; i >= 0; i--){
+            if (text[i] === '('){
                 count += 1
-            } else if (text[i] === ')') {
+            } else if (text[i] === ')'){
                 count -= 1
-            } else if (['+', '-', '*', '/'].includes(text[i]) && count === 0) {
+            } else if (['+', '-', '*', '/'].includes(text[i]) && count === 0){
                 result = [parseInfixExpression(text.substring(0, i)), parseInfixExpression(text.substring(i + 1)), text[i]]
+                break
             }
         }
-        if (result.length === 0) {
+        if (result.length === 0){
             return parseFloat(text)
         }
         return result
     }
-    function evaluatePostfixTree(formula) {
-        if (typeof formula === 'number') {
+    function evaluatePostfixTree(formula){
+        if (typeof formula === 'number'){
             return formula
         }
         let left = evaluatePostfixTree(formula[0])
         let right = evaluatePostfixTree(formula[1])
-        if (formula[2] === '+') {
-            return left + right
-        } else if (formula[2] === '-') {
-            return left - right
-        } else if (formula[2] === '*') {
-            return left * right
-        } else if (formula[2] === '/') {
-            return left / right
+        switch (formula[2]){
+            case '+':
+                return left + right;
+            case '-':
+                return left - right;
+            case '*':
+                return left * right;
+            case '/':
+                return left / right;
         }
     }
 
-    if (isValid(text)) {
+    if (isValid(text)){
         text = insertImplicitMultiplicationOperators(text)
         text = parenthesizeMultiplicationDivision(text)
         text = parenthesizeAdditionSubtraction(text)
