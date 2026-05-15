@@ -8,10 +8,19 @@
     <link rel="icon" href="./img/favicon.ico" sizes="any">
 </head>
 <body>
-    <div id="pillars">
-		<div class="pillar left"></div>
-		<div class="pillar right"></div>
-	</div>
+    <button id="menuButton" class="menu-button" type="button" aria-controls="filterMenu" aria-expanded="false" aria-label="結果フィルタを開く">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <aside id="filterMenu" class="filter-menu" aria-label="結果表示フィルタ">
+        <h2>表示する結果</h2>
+        <label><input type="checkbox" data-filter="characterCount" checked> 文字数</label>
+        <label><input type="checkbox" data-filter="specificCount" checked> 特定の文字列の数</label>
+        <label><input type="checkbox" data-filter="excludeLF" checked> 改行除く</label>
+        <label><input type="checkbox" data-filter="excludeLFAndSpace" checked> 改行・スペース除く</label>
+        <label><input type="checkbox" data-filter="calculationResult" checked> 四則演算</label>
+    </aside>
     <main class="centered">
         <section class="container">
             <h1>文字数カウント</h1>
@@ -22,23 +31,25 @@
         </section>
         <section id="results_container">
             <div class="results">
-                <ul class="results-row">
+                <ul class="result-card" data-result="characterCount">
                     <li class="results-cell label">文字数</li>
                     <li class="results-cell value" id="counter">0</li>
+                </ul>
+                <ul class="result-card" data-result="specificCount">
                     <li class="results-cell label">特定の文字列の数</li>
                     <li class="results-cell value" id="specificCounter">0</li>
                 </ul>
-                <ul class="results-row">
+                <ul class="result-card" data-result="excludeLF">
                     <li class="results-cell label">改行除く</li>
                     <li class="results-cell value" id="ex0Counter">0</li>
+                </ul>
+                <ul class="result-card" data-result="excludeLFAndSpace">
                     <li class="results-cell label">改行・スペース除く</li>
                     <li class="results-cell value" id="ex1Counter">0</li>
                 </ul>
-                <ul class="results-row">
+                <ul class="result-card" data-result="calculationResult">
                     <li class="results-cell label">四則演算</li>
                     <li class="results-cell value" id="calculationResult">0</li>
-                    <li class="results-cell label"></li>
-                    <li class="results-cell value"></li>
                 </ul>
             </div>
         </section>
